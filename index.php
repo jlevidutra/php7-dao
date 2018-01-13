@@ -3,7 +3,7 @@ require_once("config.php");
 
 $user = new Usuario();
 
-$user->loadById(1);
+$user->login("admin", "admin");
 
 echo $user;
 
