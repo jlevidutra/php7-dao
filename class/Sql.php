@@ -3,11 +3,9 @@
 class Sql extends PDO {
 
 	private $conn;
-	private $userTable;
 
 	public function __construct()
 	{
-		$this->userTable = "tb_usuarios";
 		$this->conn = new PDO("mysql:host=localhost;port=3400;dbname=dbphp7", "root", "");
 	}
 
