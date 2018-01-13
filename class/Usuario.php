@@ -7,48 +7,45 @@ class Usuario {
 	private $dessenha;
 	private $dtcadastro;
 
-	public function getIdusuario():int
+	public function __construct($user = "", $pass = "")
 	{
+		$this->setDeslogin($user);
+		$this->setDessenha($pass);
+	}
+
+	public function getIdusuario():int {
 		return $this->idusuario;
 	}
 
-	public function getDeslogin():string
-	{
+	public function getDeslogin():string {
 		return $this->deslogin;
 	}
 
-	public function getDessenha():string
-	{
+	public function getDessenha():string {
 		return $this->dessenha;
 	}
 
-	public function getDtcadastro()
-	{
+	public function getDtcadastro() {
 		return $this->dtcadastro;
 	}
 
-	public function setIdusuario($arg)
-	{
+	public function setIdusuario($arg) {
 		$this->idusuario = $arg;
 	}
 
-	public function setDeslogin($arg)
-	{
+	public function setDeslogin($arg) {
 		$this->deslogin = $arg;
 	}
 
-	public function setDessenha($arg)
-	{
+	public function setDessenha($arg) {
 		$this->dessenha = $arg;
 	}
 
-	public function setDtcadastro($arg)
-	{
+	public function setDtcadastro($arg) {
 		$this->dtcadastro = $arg;
 	}
 
-	public function login($login, $password)
-	{
+	public function login($login, $password) {
 		$sql = new Sql();
 
 		$data = array(":LOGIN" => $login, ":PASS" => $password);
@@ -57,17 +54,13 @@ class Usuario {
 		if (count($results) > 0) {
 			$row = $results[0];
 
-			$this->setIdusuario($row['idusuario']);
-			$this->setDeslogin($row['deslogin']);
-			$this->setDessenha($row['dessenha']);
-			$this->setDtcadastro(new DateTime($row['dtcadastro']));
+			$this->setData($row);
 		} else {
 			throw new Exception("Login e/ou senha inválidos.");
 		}
 	}
 
-	public function loadById($id)
-	{
+	public function loadById($id) {
 		$sql = new Sql();
 
 		$data = array(":ID" => $id);
@@ -76,22 +69,51 @@ class Usuario {
 		if (count($results) > 0) {
 			$row = $results[0];
 
-			$this->setIdusuario($row['idusuario']);
-			$this->setDeslogin($row['deslogin']);
-			$this->setDessenha($row['dessenha']);
-			$this->setDtcadastro(new DateTime($row['dtcadastro']));
+			$this->setData($row);
+
 		}
 	}
 
-	public static function getList():array
-	{
+	private function setData($data) {
+
+		$this->setIdusuario($data['idusuario']);
+		$this->setDeslogin($data['deslogin']);
+		$this->setDessenha($data['dessenha']);
+		$this->setDtcadastro(new DateTime($data['dtcadastro']));
+	}
+
+	public function insert() {
+		$sql = new Sql();
+
+		$results = $sql->select("CALL sp_usuarios_insert(:LOGIN, :PASSWORD)", array(
+			':LOGIN' => $this->getDeslogin(),
+			':PASSWORD' => $this->getDessenha()
+		));
+
+		if (count($results) > 0)
+		{
+			$this->setData($results[0]);
+		}
+	}
+
+	public function update() {
+
+		$sql = new Sql();
+
+		$sql->query("UPDATE tb_usuarios SET deslogin = :LOGIN, dessenha = :PASSWORD WHERE idusuario = :ID", array(
+			":LOGIN" => $this->getDeslogin(),
+			":PASSWORD" => $this->getDessenha(),
+			":ID" => $this->getIdusuario()
+		));
+	}
+
+	public static function getList():array {
 		$sql = new Sql();
 
 		return $sql->select("SELECT * FROM tb_usuarios ORDER BY deslogin");
 	}
 
-	public static function search($login)
-	{
+	public static function search($login) {
 		$sql = new Sql();
 
 		return $sql->select("SELECT * FROM tb_usuarios WHERE deslogin LIKE :QUERY ORDER BY deslogin", array(
@@ -99,8 +121,7 @@ class Usuario {
 		));
 	}
 
-	public function __toString()
-	{
+	public function __toString() {
 		return json_encode(array(
 			'idusuario' 	=> 	$this->getIdusuario(),
 			'deslogin' 		=> 	$this->getDeslogin(),

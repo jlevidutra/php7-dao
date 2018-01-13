@@ -1,10 +1,13 @@
 <?php 
 require_once("config.php");
 
-$user = new Usuario();
+$usuario = new Usuario();
 
-$user->login("admin", "admin");
+$usuario->loadById(5);
 
-echo $user;
 
+
+// $usuario->setDeslogin("Professor");
+// $usuario->setDessenha("@31dada");
+// $usuario->update();
 ?>
